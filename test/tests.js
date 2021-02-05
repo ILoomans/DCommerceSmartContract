@@ -2,7 +2,6 @@ const Boson = artifacts.require("Boson");
 
 contract('Boson', function(accounts) {
   const price = 1000000000
-//accounts[0] is the admin
 const admin = accounts[0]
 const buyer1 = accounts[1]
 const buyer2 = accounts[2]
@@ -38,7 +37,7 @@ const hoody = {id:6,name:'Hoody',price:adjustDecimals(12)}
 // lets consider adding this functionality here to add decimals. mpt urhet
 it("Buyer 1 buys 20 tokens", function() {
   return Boson.deployed().then(function(instance) {
-    return instance.buyTokens(20,{from:buyer1,value:20*price}).then((function(res,err){
+    return instance.buyTokens(adjustDecimals(20),{from:buyer1,value:20*price}).then((function(res,err){
       return instance.balanceOf(buyer1).then(function(res,err){
         assert.equal(adjustDecimals(20),res,'Buyer 1 failed at buying 20 tokens')
       })
@@ -49,7 +48,7 @@ it("Buyer 1 buys 20 tokens", function() {
 
 it("Buyer 2 buys 40 tokens", function() {
 return Boson.deployed().then(function(instance) {
-  return instance.buyTokens(40,{from:buyer2,value:40*price}).then((function(res,err){
+  return instance.buyTokens(adjustDecimals(40),{from:buyer2,value:40*price}).then((function(res,err){
     return instance.balanceOf(buyer2).then(function(res,err){
      assert.equal(adjustDecimals(40),res,'Buyer 2 failed at buying 40 tokens')
     })  
@@ -172,7 +171,7 @@ it("Buyer 1 orders tshirt", function() {
 
 it("Buyer 1 buys 10 tokens", function() {
   return Boson.deployed().then(function(instance) {
-    return instance.buyTokens(10,{from:buyer1,value:10*price}).then((function(res,err){
+    return instance.buyTokens(adjustDecimals(10),{from:buyer1,value:10*price}).then((function(res,err){
       assert.equal(err,undefined,'Failed to buy 10 tokens')
     }))
 })
@@ -253,139 +252,7 @@ it("getBalances", function() {
 })
 
 
-
-// it("Add item for sale", function() {
-//   return Boson.deployed().then(function(instance) {
-//     return instance.addItemForSale(200,'Bianchi',ether,{from:accounts[1]}).then(function(res,err){
-//       assert.equal(!err,true,'Failed setting item for sale')
-//     })
-// })
-// })
-
-
-// it("View item", function() {
-//   return Boson.deployed().then(function(instance) {
-//     return instance.viewItem(200).then(function(res,err){
-//       assert.equal(res[1].toString(),ether,'Failed setting correct price')
-//     })
-// })
-// })
-
-
-
-// it("Purchase Item", function() {
-//   return Boson.deployed().then(function(instance) {
-//     return instance.purchaseItem(200,{from:accounts[1],value:ether}).then(function(res,err){
-//       assert.equal(!err,true,'Failed purchasing item')
-//     })
-// })
-// })
-
-// it("Contract Balance is correct", function() {
-//   return Boson.deployed().then(function(instance) {
-//     return instance.getContractBalance().then(function(res,err){
-//      assert.equal(res.toString(),ether,'Failed purchasing item')
-//     })
-// })
-// })
-
-// it("Confirm receipt", function() {
-//   return Boson.deployed().then(function(instance) {
-//     return instance.confirmReceived(200,{from:accounts[1]}).then(function(res,err){
-//       assert.equal(!err,true,'Failed completing the purchase')
-//     })
-// })
-// })
-
-
-
-// it("Make Complaint", function() {
-//   return Boson.deployed().then(function(instance) {
-//         return instance.addItemForSale(300,'Bianchi',ether,{from:accounts[1]}).then(function(res,err){
-//           assert.equal(!err,true,'Failed setting item for sale')
-//           return instance.purchaseItem(300,{from:accounts[1],value:ether}).then(function(res,err){
-//             assert.equal(!err,true,'Failed purchasing item')
-//             return instance.confirmReceived(300,{from:accounts[1]}).then(function(res,err){
-//               assert.equal(!err,true,'Failed completing the purchase')
-//             })
-//           })
-//         })
-// })
-// })
-
-
-// it("Make Complaint", function() {
-//   return Boson.deployed().then(function(instance) {
-//     return instance.addSeller(accounts[1]).then((function(res,err){
-//       console.log('error',err)
-//       assert.equal(err,undefined,'Error adding seller')
-//         return instance.addItemForSale(300,'Bianchi',100,{from:accounts[1]}).then(function(res,err){
-//           assert.equal(!err,true,'Failed setting item for sale')
-//           return instance.purchaseItem(300,{from:accounts[1],value:100}).then(function(res,err){
-//             assert.equal(!err,true,'Failed purchasing item')
-//             return instance.complaint(300,{from:accounts[1]}).then(function(res,err){
-//               assert.equal(!err,true,'Failed completing the purchase')
-//             })
-//           })
-//         })
-//     }))
-// })
-// })
-
-
-
 })
 
-  // it("should call a function that depends on a linked library", function() {
-  //   var meta;
-  //   var metaCoinBalance;
-  //   var metaCoinEthBalance;
 
-  //   return MetaCoin.deployed().then(function(instance) {
-  //     meta = instance;
-  //     return meta.getBalance.call(accounts[0]);
-  //   }).then(function(outCoinBalance) {
-  //     metaCoinBalance = parseInt(outCoinBalance);
-  //     return meta.getBalanceInEth.call(accounts[0]);
-  //   }).then(function(outCoinBalanceEth) {
-  //     metaCoinEthBalance = parseInt(outCoinBalanceEth);
-  //   }).then(function() {
-  //     assert.equal(metaCoinEthBalance, 2 * metaCoinBalance, "Library function returned unexpected function, linkage may be broken");
-  //   });
-  // });
-  // it("should send coin correctly", function() {
-  //   var meta;
-
-  //   // Get initial balances of first and second account.
-  //   var account_one = accounts[0];
-  //   var account_two = accounts[1];
-
-  //   var account_one_starting_balance;
-  //   var account_two_starting_balance;
-  //   var account_one_ending_balance;
-  //   var account_two_ending_balance;
-
-  //   var amount = 10;
-
-  //   return MetaCoin.deployed().then(function(instance) {
-  //     meta = instance;
-  //     return meta.getBalance.call(account_one);
-  //   }).then(function(balance) {
-  //     account_one_starting_balance = parseInt(balance);
-  //     return meta.getBalance.call(account_two);
-  //   }).then(function(balance) {
-  //     account_two_starting_balance = parseInt(balance);
-  //     return meta.sendCoin(account_two, amount, {from: account_one});
-  //   }).then(function() {
-  //     return meta.getBalance.call(account_one);
-  //   }).then(function(balance) {
-  //     account_one_ending_balance = parseInt(balance);
-  //     return meta.getBalance.call(account_two);
-  //   }).then(function(balance) {
-  //     account_two_ending_balance = parseInt(balance);
-
-  //     assert.equal(account_one_ending_balance, account_one_starting_balance - amount, "Amount wasn't correctly taken from the sender");
-  //     assert.equal(account_two_ending_balance, account_two_starting_balance + amount, "Amount wasn't correctly sent to the receiver");
-  //   });
-  // });
-// });
+ 

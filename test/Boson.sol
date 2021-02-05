@@ -4,9 +4,10 @@ import "./library/EnumerableSet.sol";
 import "./library/ERC20.sol";
 
 
-
-// import safemath
+// ERC20 will be used for the creation of a payment token for the sale of goods
+// Ether is used to purchase these tokens from the smart contract and can then be resold to the contract to retrieve ether
 contract Boson is ERC20{
+    //
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.UintSet;
     address payable caddress;
@@ -14,14 +15,8 @@ contract Boson is ERC20{
 
     EnumerableSet.AddressSet Sellers;
     address public admin;
-    // 0 -> Not for sale
-    // 1 -> Item for sale
-    // 2 -> Item bought
-    // 3 -> Item received
-    // 4 -> complaint
-    
-    // we will use enum 
-    enum SaleState {NONE,SALE,BOUGHT,RECEIVED,COMPLAINT}
+
+    enum SaleState {NONE,SALE,ESCROW,RECEIVED,COMPLAINT}
 
     struct item {
         string  title;
@@ -35,7 +30,6 @@ contract Boson is ERC20{
         admin = msg.sender;
         caddress =payable(address(this));
         price = 1000000000/10**decimals();
-
     }
    
     mapping (uint256 => item) itemsForSale;
@@ -64,21 +58,14 @@ contract Boson is ERC20{
         _;
     }
    
-   // not sure if needed
     modifier valueIs(uint256 value){
         require(msg.value==value,'Mismatch between price and value sent');
         _;
     }
-    
-    function applyDecimals(uint256 _amount) internal returns(uint256){
-        return _amount*10**decimals();
-    }
-
-    function buyTokens(uint256 _tokens) valueIs(price * applyDecimals(_tokens)) payable public {
-        _mint(msg.sender,applyDecimals(_tokens));
+    function buyTokens(uint256 _tokens) valueIs(price * _tokens) payable public {
+        _mint(msg.sender,_tokens);
     }
     
-    // first test if you can sell tokens you dont have
     function sellTokens(uint256 _amount) public payable{
         _burn(msg.sender,_amount);
         payable(msg.sender).transfer(_amount*price);
@@ -95,14 +82,11 @@ contract Boson is ERC20{
         itemsForSale[_tokenID] = item(_title,_price,msg.sender,SaleState.SALE,address(0));
     }
    
-   
-    // still need to require that msg.value== the price
-    // assure that the price is equal to x 
     function purchaseItem(uint256 _tokenID,uint256 _amount) tokenStateIs(_tokenID, SaleState.SALE) public{
         require(_amount==itemsForSale[_tokenID].price,'The amount of tokens transfered does not meet the price of the product');
          transfer(address(this),_amount);
          _approve(address(this),msg.sender,_amount);
-         itemsForSale[_tokenID].saleState = SaleState.BOUGHT;
+         itemsForSale[_tokenID].saleState = SaleState.ESCROW;
          itemsForSale[_tokenID].buyer = msg.sender;
     }
     
@@ -111,16 +95,14 @@ contract Boson is ERC20{
     // senderIs modifier is needed to make sure they are sending tokens for the correct product as tokens are ft's 
     // conceivable someone with tokens staked and approved to transfer some could take tokens from another person who has staked them using their tokenID creating confusion
    
-    function confirmReceived(uint256 _tokenID) tokenStateIs(_tokenID,SaleState.BOUGHT) senderIs(itemsForSale[_tokenID].buyer)public  {
-        //payable(msg.sender).transfer(itemsForSale[_tokenID].price);
+    function confirmReceived(uint256 _tokenID) tokenStateIs(_tokenID,SaleState.ESCROW) senderIs(itemsForSale[_tokenID].buyer)public  {
         transferFrom(address(this),itemsForSale[_tokenID].seller,itemsForSale[_tokenID].price);
         itemsForSale[_tokenID].saleState=SaleState.RECEIVED;
     }
    
-    function complaint(uint256 _tokenID) tokenStateIs(_tokenID,SaleState.BOUGHT) senderIs(itemsForSale[_tokenID].buyer) public {
+    function complaint(uint256 _tokenID) tokenStateIs(_tokenID,SaleState.ESCROW) senderIs(itemsForSale[_tokenID].buyer) public {
         transferFrom(address(this),msg.sender,itemsForSale[_tokenID].price);
         itemsForSale[_tokenID].saleState=SaleState.COMPLAINT;
-        //payable(msg.sender).transfer(itemsForSale[_tokenID].price);
     }
    
     function getContractBalance() public view returns(uint256){
