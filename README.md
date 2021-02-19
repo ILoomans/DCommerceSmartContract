@@ -8,5 +8,6 @@ The Boson.sol contract creates can be found in the test folder. It is a simple c
 2. cd Boson
 3. npm i -g truffle
 4. npm i -g ganache-cli
-5. Open net terminal tab
-6. truffle test
+5. ganache-cli
+6. Open new terminal
+7. truffle test
