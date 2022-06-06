@@ -6,7 +6,7 @@ The Boson.sol contract can be found in the test folder. It is a simple contract 
 
 ## Steps to run
 
-1. git clone https://github.com/ILoomans/Boson.git
+1. git clone https://github.com/ILoomans/DCommerceSmartContract.git
 2. cd Boson
 3. npm i -g truffle
 4. npm i -g ganache-cli
